@@ -21,6 +21,7 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 ## Installation
 
 ### For Users
+
 1. Clone this repository:
    ```bash
    git clone https://github.com/yourusername/linkedin-content-filter.git
@@ -30,6 +31,7 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 4. Click "Load unpacked" and select the extension directory
 
 ### For Developers
+
 1. Clone and install dependencies:
    ```bash
    git clone https://github.com/yourusername/linkedin-content-filter.git
@@ -56,6 +58,7 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 ## Development
 
 ### Project Structure
+
 ```
 linkedin-content-filter/
 ├── manifest.json      # Extension configuration
@@ -95,6 +98,9 @@ linkedin-content-filter/
 - Built using Chrome Extension Manifest V3
 - Uses OpenAI's GPT API for LLM-based filtering
 - Inspired by the need for better content control on LinkedIn
+
+Made with Claude - Claude's note:
+"I enjoyed collaborating on this extension that helps users curate their LinkedIn experience. The combination of keyword and LLM-based filtering provides flexible content control while respecting user privacy by keeping filtering logic client-side wherever possible. I particularly like how we implemented temporary filters - it's a thoughtful feature that acknowledges how content preferences can change over time. Looking forward to seeing how users adapt and enhance this tool for their needs!"
 
 ## Security Notes
 
