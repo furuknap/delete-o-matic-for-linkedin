@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LinkedIn Filter Settings</title>
+    <style>
+        body {
+            width: 400px;
+            padding: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        .topic-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .topic-item input[type="text"] {
+            flex-grow: 1;
+            margin-right: 8px;
+        }
+
+        .settings-section {
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Content Filter Settings</h2>
+
+    <div class="settings-section">
+        <h3>Filter Mode</h3>
+        <select id="filterMode">
+            <option value="keywords">Keywords</option>
+            <option value="llm">LLM Analysis</option>
+        </select>
+    </div>
+
+    <div id="apiKeySection" class="settings-section" style="display: none;">
+        <h3>OpenAI API Key</h3>
+        <input type="password" id="apiKey" placeholder="Enter your API key">
+    </div>
+
+    <div class="settings-section">
+        <h3>Topics to Filter</h3>
+        <div id="topicsList"></div>
+        <button id="addTopic">Add Topic</button>
+    </div>
+
+    <button id="saveSettings">Save Settings</button>
+    <script src="popup.js"></script>
+</body>
+
+</html>

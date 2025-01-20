@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Delete-O-Matic for LinkedIn Content Filter",
+  "version": "1.0",
+  "description": "Filter LinkedIn content based on topics using keywords or LLM analysis",
+  "permissions": [
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://www.linkedin.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": ["https://www.linkedin.com/*"],
+    "js": ["content.js"]
+  }],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
