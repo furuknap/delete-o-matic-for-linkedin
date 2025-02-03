@@ -1,5 +1,5 @@
 async function filterContent() {
-  const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey']);
+  const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode']);
   const posts = document.querySelectorAll('.feed-shared-update-v2');
   
   posts.forEach(async (post) => {
@@ -15,8 +15,7 @@ async function filterContent() {
         return postContent.toLowerCase().includes(topic.keyword.toLowerCase());
       });
     } else if (settings.filterMode === 'llm' && settings.apiKey) {
-      // Implement LLM analysis here
-      shouldHide = await checkContentWithLLM(postContent, settings.topics, settings.apiKey);
+      shouldHide = await checkContentWithLLM(postContent, settings.topics, settings.apiKey, settings.debugMode);
     }
 
     if (shouldHide) {
@@ -25,23 +24,35 @@ async function filterContent() {
   });
 }
 
-async function checkContentWithLLM(content, topics, apiKey) {
+async function checkContentWithLLM(content, topics, apiKey, debugMode = false) {
+  const requestBody = {
+    model: 'gpt-3.5-turbo',
+    messages: [{
+      role: 'system',
+      content: 'Analyze if the following content matches any of the given topics. Respond with true or false only.'
+    }, {
+      role: 'user',
+      content: `Content: ${content}\nTopics: ${topics.map(t => t.keyword).join(', ')}`
+    }]
+  };
+
+  if (debugMode) {
+    console.log('🔍 LLM Query Debug Info:');
+    console.log('Content:', content);
+    console.log('Topics:', topics.map(t => t.keyword));
+    console.log('Request Body:', JSON.stringify(requestBody, null, 2));
+    console.log('API Endpoint: https://api.openai.com/v1/chat/completions');
+    console.log('-------------------');
+    return false; // Skip actual API call in debug mode
+  }
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      model: 'gpt-3.5-turbo',
-      messages: [{
-        role: 'system',
-        content: 'Analyze if the following content matches any of the given topics. Respond with true or false only.'
-      }, {
-        role: 'user',
-        content: `Content: ${content}\nTopics: ${topics.map(t => t.keyword).join(', ')}`
-      }]
-    })
+    body: JSON.stringify(requestBody)
   });
 
   const result = await response.json();
