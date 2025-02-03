@@ -1,13 +1,28 @@
 // Cache for evaluated posts
 let evaluatedPosts = new Map();
 
+// Load cache from storage on startup
+chrome.storage.local.get(['evaluatedPosts'], (result) => {
+  if (result.evaluatedPosts) {
+    evaluatedPosts = new Map(Object.entries(result.evaluatedPosts));
+    console.log('Loaded post cache from storage, size:', evaluatedPosts.size);
+  }
+});
+
 // Listen for settings changes to invalidate cache
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.topics || changes.filterMode || changes.apiKey) {
     console.log('Settings changed, clearing post evaluation cache');
     evaluatedPosts.clear();
+    chrome.storage.local.remove(['evaluatedPosts']);
   }
 });
+
+// Save cache to storage
+function saveCache() {
+  const cacheObject = Object.fromEntries(evaluatedPosts);
+  chrome.storage.local.set({ evaluatedPosts: cacheObject });
+}
 
 async function filterContent() {
   const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode']);
@@ -43,11 +58,13 @@ async function filterContent() {
       shouldHide = await checkContentWithLLM(postContent, settings.topics, settings.apiKey, settings.debugMode);
     }
 
-    // Cache the result
+    // Cache the result and save to storage
     evaluatedPosts.set(postId, shouldHide);
+    saveCache();
     
     if (settings.debugMode) {
       console.log('🔍 Caching evaluation result for post:', postId, shouldHide);
+      console.log('Cache size:', evaluatedPosts.size);
     }
 
     if (shouldHide) {
@@ -76,6 +93,7 @@ function getPostIdentifier(post) {
 // Expose cache clearing function for the popup
 window.clearPostCache = () => {
   evaluatedPosts.clear();
+  chrome.storage.local.remove(['evaluatedPosts']);
   console.log('Post evaluation cache cleared');
   filterContent(); // Re-evaluate all posts
 };
