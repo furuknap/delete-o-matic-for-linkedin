@@ -17,6 +17,15 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
   - Simple UI for managing filter topics
   - Duration controls for each topic
   - OpenAI API key configuration for LLM mode
+- **Debug & Development Features**:
+  - Debug mode to log LLM queries without executing them
+  - Colored console logging for filtered posts
+  - Post caching system to reduce API calls
+  - URL override parameter to view filtered posts
+- **Performance Optimizations**:
+  - Persistent post evaluation cache
+  - Cache invalidation on settings changes
+  - Clear cache button in UI
 
 ## Installation
 
@@ -43,6 +52,11 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
    - Extension popup: Right-click extension icon → Inspect popup
    - Background script: Visit `chrome://extensions` → Details → Inspect views: background page
    - Content script: Regular Chrome DevTools when on LinkedIn
+5. Debug mode features:
+   - Enable "Debug Mode" in extension popup
+   - View detailed LLM query logs in console
+   - See which posts are being filtered and why
+   - Access direct links to filtered posts
 
 ## Usage
 
@@ -55,7 +69,29 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 5. Click "Save Settings"
 6. Browse LinkedIn - matching content will be filtered automatically
 
-## Development
+### Viewing Filtered Posts
+
+When a post is filtered, you'll see an orange log in the console with:
+
+- The topic that triggered the filter
+- The post's activity ID
+- A direct link to view the post
+- A preview of the post content
+
+To view a filtered post:
+
+1. Click the direct link in the console log
+2. The post will open with `#override-deletion` in the URL
+3. Filtering is automatically disabled when this parameter is present
+
+### Cache Management
+
+The extension caches post evaluations to improve performance:
+
+- Cache persists between browser sessions
+- Automatically invalidated when settings change
+- Can be manually cleared via "Clear Cache" button
+- Debug mode shows cache operations in console
 
 ### Project Structure
 
@@ -78,6 +114,7 @@ linkedin-content-filter/
 ### Chrome APIs Used
 
 - `chrome.storage.sync`: For settings persistence
+- `chrome.storage.local`: For post evaluation cache
 - `chrome.scripting`: For content script injection
 - `MutationObserver`: For detecting LinkedIn feed updates
 
@@ -107,3 +144,4 @@ Made with Claude - Claude's note:
 - API keys are stored in Chrome's secure storage
 - No data is collected or transmitted except for LLM analysis when enabled
 - All filtering is done client-side except for LLM analysis
+- Post evaluation cache stored locally for performance
