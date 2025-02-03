@@ -57,13 +57,20 @@ async function filterContent() {
 }
 
 function getPostIdentifier(post) {
-  // Try to get unique elements from the post
-  const timestamp = post.querySelector('time')?.dateTime || '';
-  const authorName = post.querySelector('.feed-shared-actor__name')?.textContent || '';
-  const contentPreview = post.textContent.slice(0, 100); // First 100 chars of content
+  // Get the closest parent with data-id attribute
+  const container = post.closest('[data-id]');
+  if (!container) {
+    console.warn('Could not find data-id for post, falling back to content hash');
+    // Fallback to content hash if data-id is not found
+    return post.textContent.slice(0, 100).replace(/\s+/g, '-');
+  }
   
-  // Combine elements to create a unique identifier
-  return `${authorName}-${timestamp}-${contentPreview}`.replace(/\s+/g, '-');
+  // Extract activity URNs from data-id
+  const dataId = container.getAttribute('data-id');
+  const activities = dataId.match(/urn:li:activity:\d+/g) || [];
+  
+  // Use the first activity URN as identifier, or the full data-id if no URNs found
+  return activities[0] || dataId;
 }
 
 // Expose cache clearing function for the popup
