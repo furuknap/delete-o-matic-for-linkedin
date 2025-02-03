@@ -42,6 +42,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   addTopicBtn.addEventListener('click', () => addTopicElement());
 
+  // Clear post cache
+  document.getElementById('clearCache').addEventListener('click', async function() {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => window.clearPostCache()
+    });
+    alert('Post cache cleared!');
+  });
+
   // Save settings
   saveBtn.addEventListener('click', function() {
     const topics = Array.from(document.querySelectorAll('.topic-item')).map(item => ({

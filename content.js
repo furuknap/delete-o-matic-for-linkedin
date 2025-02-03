@@ -1,8 +1,33 @@
+// Cache for evaluated posts
+let evaluatedPosts = new Map();
+
+// Listen for settings changes to invalidate cache
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.topics || changes.filterMode || changes.apiKey) {
+    console.log('Settings changed, clearing post evaluation cache');
+    evaluatedPosts.clear();
+  }
+});
+
 async function filterContent() {
   const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode']);
   const posts = document.querySelectorAll('.feed-shared-update-v2');
   
   posts.forEach(async (post) => {
+    // Create a unique identifier for the post
+    // Using a combination of post content and timestamp if available
+    const postId = getPostIdentifier(post);
+    
+    // Skip if we've already evaluated this post
+    if (evaluatedPosts.has(postId)) {
+      if (settings.debugMode) {
+        console.log('🔍 Skipping already evaluated post:', postId);
+      }
+      const shouldHide = evaluatedPosts.get(postId);
+      post.style.display = shouldHide ? 'none' : '';
+      return;
+    }
+
     const postContent = post.textContent;
     let shouldHide = false;
 
@@ -18,15 +43,39 @@ async function filterContent() {
       shouldHide = await checkContentWithLLM(postContent, settings.topics, settings.apiKey, settings.debugMode);
     }
 
+    // Cache the result
+    evaluatedPosts.set(postId, shouldHide);
+    
+    if (settings.debugMode) {
+      console.log('🔍 Caching evaluation result for post:', postId, shouldHide);
+    }
+
     if (shouldHide) {
       post.style.display = 'none';
     }
   });
 }
 
+function getPostIdentifier(post) {
+  // Try to get unique elements from the post
+  const timestamp = post.querySelector('time')?.dateTime || '';
+  const authorName = post.querySelector('.feed-shared-actor__name')?.textContent || '';
+  const contentPreview = post.textContent.slice(0, 100); // First 100 chars of content
+  
+  // Combine elements to create a unique identifier
+  return `${authorName}-${timestamp}-${contentPreview}`.replace(/\s+/g, '-');
+}
+
+// Expose cache clearing function for the popup
+window.clearPostCache = () => {
+  evaluatedPosts.clear();
+  console.log('Post evaluation cache cleared');
+  filterContent(); // Re-evaluate all posts
+};
+
 async function checkContentWithLLM(content, topics, apiKey, debugMode = false) {
   const requestBody = {
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-mini',
     messages: [{
       role: 'system',
       content: 'Analyze if the following content matches any of the given topics. Respond with true or false only.'
@@ -42,6 +91,7 @@ async function checkContentWithLLM(content, topics, apiKey, debugMode = false) {
     console.log('Topics:', topics.map(t => t.keyword));
     console.log('Request Body:', JSON.stringify(requestBody, null, 2));
     console.log('API Endpoint: https://api.openai.com/v1/chat/completions');
+    console.log('Cache Size:', evaluatedPosts.size);
     console.log('-------------------');
     return false; // Skip actual API call in debug mode
   }
