@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveBtn = document.getElementById('saveSettings');
 
   // Load saved settings
-  chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode'], function(data) {
+  chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode', 'llmModel'], function(data) {
     if (data.topics) {
       data.topics.forEach(topic => addTopicElement(topic));
     }
@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (data.apiKey) {
       document.getElementById('apiKey').value = data.apiKey;
+    }
+    if (data.llmModel) {
+      document.getElementById('llmModel').value = data.llmModel;
     }
     if (data.debugMode !== undefined) {
       document.getElementById('debugMode').checked = data.debugMode;
@@ -64,7 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
       topics,
       filterMode: filterMode.value,
       apiKey: document.getElementById('apiKey').value,
-      debugMode: document.getElementById('debugMode').checked
+      debugMode: document.getElementById('debugMode').checked,
+      llmModel: document.getElementById('llmModel').value
     };
     console.log('Settings:', settings); // Before the chrome.storage.sync.set call
     chrome.storage.sync.set(settings, function() {

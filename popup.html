@@ -39,8 +39,18 @@
     </div>
 
     <div id="apiKeySection" class="settings-section" style="display: none;">
-        <h3>OpenAI API Key</h3>
-        <input type="password" id="apiKey" placeholder="Enter your API key">
+        <h3>LLM Settings</h3>
+        <select id="llmModel" style="margin-bottom: 8px; width: 100%;">
+            <option value="gpt-4o-mini">OpenAI GPT-4o Mini</option>
+            <option value="gemini-2.0-flash-exp">Google Gemini Flash</option>
+            <option value="claude-3-5-sonnet-20241022">Anthropic Claude 3.5 Sonnet</option>
+        </select>
+        <input type="password" id="apiKey" placeholder="Enter API key for selected model" style="width: 100%;">
+        <small style="display: block; margin-top: 4px; color: #666;">
+            OpenAI: Use Bearer token<br>
+            Google: Use API key<br>
+            Anthropic: Use API key
+        </small>
         <div style="margin-top: 8px;">
             <label>
                 <input type="checkbox" id="debugMode"> Debug Mode (Log LLM queries to console)

@@ -11,7 +11,7 @@ chrome.storage.local.get(['evaluatedPosts'], (result) => {
 
 // Listen for settings changes to invalidate cache
 chrome.storage.onChanged.addListener((changes) => {
-  if (changes.topics || changes.filterMode || changes.apiKey) {
+  if (changes.topics || changes.filterMode || changes.apiKey || changes.llmModel) {
     console.log('Settings changed, clearing post evaluation cache');
     evaluatedPosts.clear();
     chrome.storage.local.remove(['evaluatedPosts']);
@@ -31,7 +31,7 @@ async function filterContent() {
     return;
   }
 
-  const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode']);
+  const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode', 'llmModel']);
   const posts = document.querySelectorAll('.feed-shared-update-v2');
   
   posts.forEach(async (post) => {
@@ -122,39 +122,103 @@ window.clearPostCache = () => {
 };
 
 async function checkContentWithLLM(content, topics, apiKey, debugMode = false) {
-  const requestBody = {
-    model: 'gpt-4-mini',
-    messages: [{
-      role: 'system',
-      content: 'Analyze if the following content matches any of the given topics. Respond with true or false only.'
-    }, {
-      role: 'user',
-      content: `Content: ${content}\nTopics: ${topics.map(t => t.keyword).join(', ')}`
-    }]
+  const settings = await chrome.storage.sync.get(['llmModel']);
+  const model = settings.llmModel || 'gpt-4o-mini';
+  
+  let endpoint = '';
+  let requestBody = {};
+  let headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${apiKey}`
   };
+
+  const prompt = `Content: ${content}\nTopics: ${topics.map(t => t.keyword).join(', ')}`;
+
+  // Set up model-specific configurations
+  switch (model) {
+    case 'gpt-4o-mini':
+      endpoint = 'https://api.openai.com/v1/chat/completions';
+      headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      };
+      requestBody = {
+        model: 'gpt-4o-mini',
+        messages: [{
+          role: 'system',
+          content: 'Analyze if the following content matches any of the given topics. Respond with true or false only.'
+        }, {
+          role: 'user',
+          content: prompt
+        }]
+      };
+      break;
+
+    case 'gemini-2.0-flash-exp':
+      endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      headers = {
+        'Content-Type': 'application/json'
+      };
+      requestBody = {
+        contents: [{
+          parts: [{
+            text: 'Analyze if the following content matches any of the given topics. Respond with true or false only.\n\n' + prompt
+          }]
+        }]
+      };
+      break;
+
+    case 'claude-3-5-sonnet-20241022':
+      endpoint = 'https://api.anthropic.com/v1/messages';
+      headers = {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey
+      };
+      requestBody = {
+        model: 'claude-3-5-sonnet-20241022',
+        messages: [{
+          role: 'user',
+          content: 'Analyze if the following content matches any of the given topics. Respond with true or false only.\n\n' + prompt
+        }]
+      };
+      break;
+  }
 
   if (debugMode) {
     console.log('🔍 LLM Query Debug Info:');
+    console.log('Model:', model);
     console.log('Content:', content);
     console.log('Topics:', topics.map(t => t.keyword));
     console.log('Request Body:', JSON.stringify(requestBody, null, 2));
-    console.log('API Endpoint: https://api.openai.com/v1/chat/completions');
+    console.log('API Endpoint:', endpoint);
     console.log('Cache Size:', evaluatedPosts.size);
     console.log('-------------------');
     return false; // Skip actual API call in debug mode
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
+    headers,
     body: JSON.stringify(requestBody)
   });
 
   const result = await response.json();
-  return result.choices[0].message.content.toLowerCase().includes('true');
+  
+  // Handle different response formats
+  let resultText = '';
+  switch (model) {
+    case 'gpt-4o-mini':
+      resultText = result.choices[0].message.content;
+      break;
+    case 'gemini-2.0-flash-exp':
+      resultText = result.candidates[0].content.parts[0].text;
+      break;
+    case 'claude-3-5-sonnet-20241022':
+      resultText = result.content[0].text;
+      break;
+  }
+
+  return resultText.toLowerCase().includes('true');
 }
 
 console.log('Content script loaded');
