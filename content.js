@@ -69,6 +69,23 @@ async function filterContent() {
 
     if (shouldHide) {
       post.style.display = 'none';
+      
+      // Log filtered post details
+      const postUrl = post.querySelector('a[data-tracking-control-name="feed-shared-update-v2_share-update"]')?.href || 
+                     post.querySelector('a[data-tracking-control-name="feed-shared-update-v2_feed-article"]')?.href || 
+                     'URL not found';
+      
+      const matchedTopic = settings.filterMode === 'keywords' ? 
+        settings.topics.find(topic => postContent.toLowerCase().includes(topic.keyword.toLowerCase()))?.keyword : 
+        'LLM Analysis';
+
+      console.log(
+        '%c🚫 Post Filtered:\n' +
+        `Topic: ${matchedTopic}\n` +
+        `URL: ${postUrl}\n` +
+        `Content Preview: ${postContent.slice(0, 200)}...`,
+        'color: #FFA500; font-weight: bold; border-left: 4px solid #FFA500; padding-left: 10px;'
+      );
     }
   });
 }
