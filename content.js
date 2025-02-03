@@ -25,12 +25,17 @@ function saveCache() {
 }
 
 async function filterContent() {
+  // Check if we're in override mode
+  if (window.location.hash === '#override-deletion') {
+    console.log('🔓 Override mode active - filtering disabled');
+    return;
+  }
+
   const settings = await chrome.storage.sync.get(['topics', 'filterMode', 'apiKey', 'debugMode']);
   const posts = document.querySelectorAll('.feed-shared-update-v2');
   
   posts.forEach(async (post) => {
     // Create a unique identifier for the post
-    // Using a combination of post content and timestamp if available
     const postId = getPostIdentifier(post);
     
     // Skip if we've already evaluated this post
@@ -70,10 +75,9 @@ async function filterContent() {
     if (shouldHide) {
       post.style.display = 'none';
       
-      // Get activity ID and create direct link
-      const postId = getPostIdentifier(post);
+      // Get activity ID and create direct link with override
       const activityUrl = postId.startsWith('urn:li:activity:') ? 
-        `https://www.linkedin.com/feed/update/${postId}/` : 
+        `https://www.linkedin.com/feed/update/${postId}/#override-deletion` : 
         'URL not available';
       
       const matchedTopic = settings.filterMode === 'keywords' ? 
@@ -84,7 +88,7 @@ async function filterContent() {
         '%c🚫 Post Filtered:\n' +
         `Topic: ${matchedTopic}\n` +
         `Activity ID: ${postId}\n` +
-        `Direct Link: ${activityUrl}\n` +
+        `Direct Link (filtering disabled): ${activityUrl}\n` +
         `Content Preview: ${postContent.slice(0, 200)}...`,
         'color: #FFA500; font-weight: bold; border-left: 4px solid #FFA500; padding-left: 10px;'
       );
