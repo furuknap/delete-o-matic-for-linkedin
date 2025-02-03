@@ -6,7 +6,10 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 
 - **Dual Filtering Modes**:
   - Keyword-based filtering for simple text matching
-  - LLM-based filtering using OpenAI's API for context-aware content analysis
+  - LLM-based filtering using multiple providers for context-aware content analysis:
+    - OpenAI GPT-4 Mini
+    - Google Gemini 1.5 Flash
+    - Anthropic Claude 3.5 Sonnet
 - **Flexible Duration Control**:
   - Set temporary filters (X days)
   - Set permanent filters
@@ -16,7 +19,7 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 - **Easy Configuration**:
   - Simple UI for managing filter topics
   - Duration controls for each topic
-  - OpenAI API key configuration for LLM mode
+  - API key configuration for chosen LLM provider
 - **Debug & Development Features**:
   - Debug mode to log LLM queries without executing them
   - Colored console logging for filtered posts
@@ -62,7 +65,9 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 
 1. Click the extension icon in your Chrome toolbar
 2. Choose your filtering mode (Keywords or LLM)
-3. If using LLM mode, enter your OpenAI API key
+3. If using LLM mode:
+   - Select your preferred LLM provider
+   - Enter the appropriate API key for the selected service
 4. Add topics to filter:
    - Enter keyword or topic
    - Set duration (0 for permanent, or number of days)
@@ -133,7 +138,7 @@ linkedin-content-filter/
 ## Acknowledgments
 
 - Built using Chrome Extension Manifest V3
-- Uses OpenAI's GPT API for LLM-based filtering
+- Supports multiple LLM providers (OpenAI, Google Gemini, Anthropic Claude) for content analysis
 - Inspired by the need for better content control on LinkedIn
 
 Made with Claude - Claude's note:
