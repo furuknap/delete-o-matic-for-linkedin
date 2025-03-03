@@ -24,41 +24,21 @@
         .settings-section {
             margin-bottom: 16px;
         }
+
+        .topic-item-disabled {
+            opacity: 0.6;
+        }
+
+        .topic-item-disabled * {
+            color: #888;
+        }
     </style>
 </head>
 
 <body>
     <h2>Content Filter Settings</h2>
 
-    <div class="settings-section">
-        <h3>Filter Mode</h3>
-        <select id="filterMode">
-            <option value="keywords">Keywords</option>
-            <option value="llm">LLM Analysis</option>
-        </select>
-    </div>
 
-    <div id="apiKeySection" class="settings-section" style="display: none;">
-        <h3>LLM Settings</h3>
-        <select id="llmModel" style="margin-bottom: 8px; width: 100%;">
-            <option value="gpt-4o-mini">OpenAI GPT-4o Mini</option>
-            <option value="gemini-2.0-flash-exp">Google Gemini Flash</option>
-            <option value="claude-3-5-sonnet-20241022">Anthropic Claude 3.5 Sonnet</option>
-        </select>
-        <input type="password" id="apiKey" placeholder="Enter API key for selected model" style="width: 100%;">
-        <small style="display: block; margin-top: 4px; color: #666;">
-            OpenAI: Use Bearer token<br>
-            Google: Use API key<br>
-            Anthropic: Use API key<br>
-            <br>
-            API keys are stored locally in Chrome's secure storage and are only used to authenticate API calls.
-        </small>
-        <div style="margin-top: 8px;">
-            <label>
-                <input type="checkbox" id="debugMode"> Debug Mode (Log LLM queries to console)
-            </label>
-        </div>
-    </div>
 
     <div class="settings-section">
         <h3>Topics to Filter</h3>
