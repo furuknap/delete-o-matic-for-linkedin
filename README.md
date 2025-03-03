@@ -32,7 +32,30 @@ A Chrome extension that helps users filter LinkedIn feed content based on topics
 
 ## Installation
 
-### For Users
+### For Non-Technical Users
+
+1. Download the extension as a ZIP file:
+
+   - Go to the GitHub repository page
+   - Click the green "Code" button
+   - Select "Download ZIP" from the dropdown menu
+   - Save the ZIP file to your computer
+
+2. Extract the ZIP file:
+
+   - Find the downloaded ZIP file in your Downloads folder
+   - Right-click on it and select "Extract All..." (Windows) or double-click it (Mac)
+   - Choose a location to extract the files (e.g., your Desktop)
+   - Click "Extract"
+
+3. Install in Chrome:
+   - Open Chrome and navigate to `chrome://extensions/` (copy and paste this into your address bar)
+   - Enable "Developer mode" by toggling the switch in the top right corner
+   - Click "Load unpacked" button that appears
+   - Browse to the folder where you extracted the ZIP file and select it
+   - The extension should now appear in your extensions list and be ready to use
+
+### For Users Familiar with Git
 
 1. Clone this repository:
    ```bash
