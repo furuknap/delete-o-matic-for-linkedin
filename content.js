@@ -16,6 +16,14 @@ chrome.storage.onChanged.addListener((changes) => {
     evaluatedPosts.clear();
     chrome.storage.local.remove(['evaluatedPosts']);
   }
+  
+  // If global filtering setting changed, refresh filtering
+  if (changes.filteringEnabled) {
+    console.log('Global filtering setting changed:', changes.filteringEnabled.newValue);
+    evaluatedPosts.clear();
+    chrome.storage.local.remove(['evaluatedPosts']);
+    filterContent(); // Re-evaluate all posts with new setting
+  }
 });
 
 // Save cache to storage
@@ -31,7 +39,18 @@ async function filterContent() {
     return;
   }
 
-  const settings = await chrome.storage.sync.get(['topics']);
+  const settings = await chrome.storage.sync.get(['topics', 'filteringEnabled']);
+  
+  // Check if filtering is globally disabled
+  if (settings.filteringEnabled === false) {
+    console.log('🔓 Filtering globally disabled');
+    // Show all posts that might have been hidden
+    document.querySelectorAll('.feed-shared-update-v2').forEach(post => {
+      post.style.display = '';
+    });
+    return;
+  }
+  
   const posts = document.querySelectorAll('.feed-shared-update-v2');
   
   posts.forEach(async (post) => {

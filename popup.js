@@ -2,9 +2,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const topicsList = document.getElementById('topicsList');
   const addTopicBtn = document.getElementById('addTopic');
   const saveBtn = document.getElementById('saveSettings');
+  const globalFilterToggle = document.getElementById('globalFilterToggle');
 
   // Load saved settings
-  chrome.storage.sync.get(['topics'], function(data) {
+  chrome.storage.sync.get(['topics', 'filteringEnabled'], function(data) {
+    // Set global filtering toggle
+    if (data.filteringEnabled !== undefined) {
+      globalFilterToggle.checked = data.filteringEnabled;
+    }
+    
+    // Update UI based on global filtering state
+    updateUIBasedOnGlobalFilter(globalFilterToggle.checked);
+    
     if (data.topics) {
       data.topics.forEach(topic => addTopicElement({
         type: topic.type,
@@ -13,6 +22,25 @@ document.addEventListener('DOMContentLoaded', function() {
         enabled: topic.enabled
       }));
     }
+  });
+  
+  // Function to update UI based on global filtering state
+  function updateUIBasedOnGlobalFilter(enabled) {
+    const topicsTable = document.querySelector('table');
+    const addTopicButton = document.getElementById('addTopic');
+    
+    if (enabled) {
+      topicsTable.style.opacity = '1';
+      addTopicButton.disabled = false;
+    } else {
+      topicsTable.style.opacity = '0.5';
+      addTopicButton.disabled = true;
+    }
+  }
+  
+  // Handle global filter toggle
+  globalFilterToggle.addEventListener('change', function() {
+    updateUIBasedOnGlobalFilter(this.checked);
   });
 
   // Add new topic input
@@ -74,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const settings = {
-      topics
+      topics,
+      filteringEnabled: globalFilterToggle.checked
     };
     console.log('Settings:', settings); // Before the chrome.storage.sync.set call
     chrome.storage.sync.set(settings, function() {
