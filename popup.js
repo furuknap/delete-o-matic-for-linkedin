@@ -17,32 +17,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Add new topic input
   function addTopicElement(topicData = { keyword: '', duration: 0 }) {
-    const div = document.createElement('div');
-    div.className = 'topic-item';
-    div.innerHTML = `
-      <input type="checkbox" class="filter-enabled" checked>
-      <select class="filter-type">
-        <option value="keyword">Keyword</option>
-        <option value="topic">Topic</option>
-      </select>
-      <input type="text" class="filter-value" placeholder="Enter keyword or topic" value="${topicData.keyword}">
-      <input type="number" class="topic-duration" placeholder="Days (0 for permanent)" value="${topicData.duration}" min="0">
-      <button class="remove-topic">Remove</button>
+    const tr = document.createElement('tr');
+    tr.className = 'topic-item';
+    tr.innerHTML = `
+      <td><input type="checkbox" class="filter-enabled" checked></td>
+      <td><select class="filter-type">
+          <option value="keyword">Keyword</option>
+          <option value="topic">Topic</option>
+        </select></td>
+      <td><input type="text" class="filter-value" placeholder="Enter keyword or topic" value="${topicData.keyword}"></td>
+      <td><input type="number" class="topic-duration" placeholder="Days (0 for permanent)" value="${topicData.duration}" min="0"></td>
+      <td><button class="remove-topic">Remove</button></td>
     `;
-    div.querySelector('.remove-topic').addEventListener('click', () => div.remove());
-    div.querySelector('.filter-type').value = topicData.type || 'keyword';
-    div.querySelector('.filter-enabled').checked = topicData.enabled !== false;
+    tr.querySelector('.remove-topic').addEventListener('click', () => tr.remove());
+    tr.querySelector('.filter-type').value = topicData.type || 'keyword';
+    tr.querySelector('.filter-enabled').checked = topicData.enabled !== false;
     
     const toggleFilter = () => {
-      const enabled = div.querySelector('.filter-enabled').checked;
-      div.classList.toggle('topic-item-disabled', !enabled);
-      div.querySelectorAll('select, input[type="text"], input[type="number"]').forEach(el => el.disabled = !enabled);
+      const enabled = tr.querySelector('.filter-enabled').checked;
+      tr.classList.toggle('topic-item-disabled', !enabled);
+      tr.querySelectorAll('select, input[type="text"], input[type="number"]').forEach(el => el.disabled = !enabled);
     };
 
-    div.querySelector('.filter-enabled').addEventListener('change', toggleFilter);
+    tr.querySelector('.filter-enabled').addEventListener('change', toggleFilter);
     toggleFilter();
 
-    topicsList.appendChild(div);
+    topicsList.appendChild(tr);
   }
 
   addTopicBtn.addEventListener('click', () => addTopicElement());

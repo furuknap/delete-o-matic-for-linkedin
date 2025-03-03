@@ -5,7 +5,7 @@
     <title>LinkedIn Filter Settings</title>
     <style>
         body {
-            width: 400px;
+            width: 600px;
             padding: 16px;
             font-family: Arial, sans-serif;
         }
@@ -32,17 +32,78 @@
         .topic-item-disabled * {
             color: #888;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+
+        td:nth-child(1),
+        th:nth-child(1) {
+            width: 60px;
+            text-align: center;
+        }
+
+        td:nth-child(2),
+        th:nth-child(2) {
+            width: 80px;
+        }
+
+        td:nth-child(3),
+        th:nth-child(3) {
+            width: 120px;
+        }
+
+        td:nth-child(4),
+        th:nth-child(4) {
+            width: 80px;
+            text-align: center;
+        }
+
+        td:nth-child(5),
+        th:nth-child(5) {
+            width: 60px;
+            text-align: center;
+        }
+
+        /* Fix for the topic-item class which was previously for flex layout */
+        .topic-item {
+            display: table-row;
+            margin-bottom: 0;
+        }
     </style>
 </head>
 
 <body>
     <h2>Content Filter Settings</h2>
 
-
-
     <div class="settings-section">
         <h3>Topics to Filter</h3>
-        <div id="topicsList"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Enabled</th>
+                    <th>Mode</th>
+                    <th>Filter</th>
+                    <th>Duration (days)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="topicsList">
+            </tbody>
+        </table>
         <button id="addTopic">Add Topic</button>
     </div>
 
